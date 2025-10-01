@@ -1,0 +1,15 @@
+echo "🔍 Running pre-commit checks..."
+
+# Run formatting check
+echo "📝 Running Prettier checks..."
+pnpm run format
+
+# Run type checking
+echo "🔧 Running type checks..."
+pnpm run check
+
+# Run linting (warnings only, don't fail on warnings)
+echo "🔍 Running ESLint checks..."
+pnpm run lint || echo "⚠️  ESLint found warnings but continuing..."
+
+echo "✅ All pre-commit checks completed!"
