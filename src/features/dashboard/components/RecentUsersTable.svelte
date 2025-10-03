@@ -1,6 +1,7 @@
 <script lang="ts">
-	import type { User } from '$lib/types';
+	import type { User } from '$lib/api/generated/users/types';
 	import { t } from '$lib/i18n';
+	import { formatDate } from '$lib/utils';
 
 	interface Props {
 		users: User[];
@@ -42,12 +43,13 @@
 			</div>
 		{:else}
 			<div class="-mx-3 overflow-x-auto px-3 md:mx-0 md:px-0">
-				<table class="w-full min-w-[600px]">
+				<table class="w-full min-w-[700px]">
 					<thead>
 						<tr class="border-b-2 border-gray-200">
 							<th class="px-2 py-3 text-left font-semibold whitespace-nowrap text-gray-700">Name</th>
 							<th class="px-2 py-3 text-left font-semibold whitespace-nowrap text-gray-700">Email</th>
-							<th class="px-2 py-3 text-left font-semibold whitespace-nowrap text-gray-700">Age</th>
+							<th class="px-2 py-3 text-left font-semibold whitespace-nowrap text-gray-700">Birthdate</th>
+							<th class="px-2 py-3 text-left font-semibold whitespace-nowrap text-gray-700">Status</th>
 							<th class="px-2 py-3 text-left font-semibold whitespace-nowrap text-gray-700">Created At</th>
 						</tr>
 					</thead>
@@ -65,14 +67,29 @@
 									</div>
 								</td>
 								<td class="px-2 py-2 whitespace-nowrap text-gray-600 md:py-4">{user.email}</td>
-								<td class="px-2 py-2 whitespace-nowrap text-gray-600 md:py-4">{user.age}</td>
-								<td class="px-2 py-2 whitespace-nowrap text-gray-600 md:py-4"
-									>{new Date(user.createdAt).toLocaleDateString('en-US', {
-										month: 'short',
-										day: 'numeric',
-										year: 'numeric'
-									})}</td
-								>
+								<td class="px-2 py-2 whitespace-nowrap text-gray-600 md:py-4">
+									{#if user.birthdate}
+										{formatDate(user.birthdate)}
+									{:else}
+										<span class="text-gray-400">N/A</span>
+									{/if}
+								</td>
+								<td class="px-2 py-2 whitespace-nowrap md:py-4">
+									{#if user.status === 1}
+										<span
+											class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800"
+										>
+											Active
+										</span>
+									{:else}
+										<span
+											class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800"
+										>
+											Inactive
+										</span>
+									{/if}
+								</td>
+								<td class="px-2 py-2 whitespace-nowrap text-gray-600 md:py-4">{formatDate(user.createdAt)}</td>
 							</tr>
 						{/each}
 					</tbody>

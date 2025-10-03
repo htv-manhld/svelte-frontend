@@ -32,35 +32,6 @@
 	<div class="relative flex min-h-screen items-center justify-center">
 		<div class="h-full w-full max-w-4xl">
 			<div class="px-4 py-2 md:px-8 md:py-0">
-				{#if status === 500}
-					<!-- 500 Error Illustration -->
-					<div class="mb-8 flex justify-center">
-						<div class="relative h-64 w-64 md:h-80 md:w-80">
-							<!-- Broken Server -->
-							<svg
-								class="animate-float-slow h-full w-full"
-								viewBox="0 0 200 200"
-								fill="none"
-								xmlns="http://www.w3.org/2000/svg"
-							>
-								<!-- Server Body -->
-								<rect x="50" y="60" width="100" height="80" rx="10" fill="#EF4444" opacity="0.2" />
-								<rect x="55" y="65" width="90" height="25" rx="5" fill="#EF4444" />
-								<rect x="55" y="95" width="90" height="25" rx="5" fill="#EF4444" />
-								<rect x="55" y="125" width="90" height="10" rx="3" fill="#EF4444" />
-
-								<!-- Warning Symbol -->
-								<circle cx="100" cy="100" r="30" fill="#FEE2E2" />
-								<path d="M100 80 L100 100 M100 110 L100 112" stroke="#EF4444" stroke-width="6" stroke-linecap="round" />
-
-								<!-- Lightning Bolts -->
-								<path d="M70 50 L60 70 L70 70 L65 85" stroke="#FBBF24" stroke-width="3" stroke-linecap="round" />
-								<path d="M130 50 L140 70 L130 70 L135 85" stroke="#FBBF24" stroke-width="3" stroke-linecap="round" />
-							</svg>
-						</div>
-					</div>
-				{/if}
-
 				<!-- Error Code with Gradient -->
 				<div class="mb-6 text-center">
 					<h1

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { t } from '$lib/i18n';
-	import type { User } from '$lib/types';
+	import type { User } from '$lib/api/generated/users/types';
 	import { dashboardService } from '$features/dashboard/services/dashboardService';
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 	import ErrorState from '$lib/components/feedback/ErrorState.svelte';

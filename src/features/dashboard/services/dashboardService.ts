@@ -1,7 +1,7 @@
 // Dashboard business logic
 
 import { userApi } from '$lib/api/users';
-import type { User } from '$lib/types';
+import type { User } from '$lib/api/generated/users/types';
 
 export interface DashboardStats {
 	userCount: number;

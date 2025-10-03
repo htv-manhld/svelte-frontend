@@ -4,7 +4,7 @@ import { userApi } from '$lib/api/users';
 import { usersStore } from '$features/users/stores/usersStore';
 import { notificationStore } from '$lib/stores/notificationStore.svelte';
 import { t } from '$lib/i18n';
-import type { CreateUserRequest, UpdateUserRequest } from '$lib/types';
+import type { CreateUserRequest, UpdateUserRequest } from '$lib/api/generated/users/types';
 
 export class UserService {
 	async loadUsers(page: number = 0, size: number = 20): Promise<void> {

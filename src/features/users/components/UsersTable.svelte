@@ -1,7 +1,8 @@
 <script lang="ts">
 	import Table from '$lib/components/tables/Table.svelte';
 	import Button from '$lib/components/buttons/Button.svelte';
-	import type { User } from '$lib/types';
+	import type { User } from '$lib/api/generated/users/types';
+	import { formatDate } from '$lib/utils';
 
 	interface Props {
 		users: User[];
@@ -11,7 +12,7 @@
 
 	let { users, onEdit, onDelete }: Props = $props();
 
-	const headers = ['ID', 'User', 'Email', 'Age', 'Created At', 'Actions'];
+	const headers = ['ID', 'User', 'Email', 'Birthdate', 'Status', 'Created At', 'Actions'];
 </script>
 
 <Table {headers}>
@@ -29,10 +30,29 @@
 				</div>
 			</td>
 			<td class="px-3 py-3 text-sm whitespace-nowrap text-gray-600 md:px-6 md:py-4">{user.email}</td>
-			<td class="px-3 py-3 text-sm whitespace-nowrap text-gray-600 md:px-6 md:py-4">{user.age} years</td>
-			<td class="px-3 py-3 text-sm whitespace-nowrap text-gray-600 md:px-6 md:py-4"
-				>{new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td
-			>
+			<td class="px-3 py-3 text-sm whitespace-nowrap text-gray-600 md:px-6 md:py-4">
+				{#if user.birthdate}
+					{formatDate(user.birthdate)}
+				{:else}
+					<span class="text-gray-400">N/A</span>
+				{/if}
+			</td>
+			<td class="px-3 py-3 text-sm whitespace-nowrap md:px-6 md:py-4">
+				{#if user.status === 1}
+					<span
+						class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800"
+					>
+						Active
+					</span>
+				{:else}
+					<span
+						class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800"
+					>
+						Inactive
+					</span>
+				{/if}
+			</td>
+			<td class="px-3 py-3 text-sm whitespace-nowrap text-gray-600 md:px-6 md:py-4">{formatDate(user.createdAt)}</td>
 			<td class="px-3 py-3 md:px-6 md:py-4">
 				<div class="flex gap-2">
 					<Button variant="secondary" size="sm" onclick={() => onEdit(user)} class="md:px-4">

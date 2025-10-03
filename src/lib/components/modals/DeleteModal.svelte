@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { fade, scale } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
-	import type { User } from '$lib/types';
+	import type { User } from '$lib/api/generated/users/types';
 
 	interface Props {
 		isOpen?: boolean;

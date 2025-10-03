@@ -1,7 +1,7 @@
 // Global Svelte stores
 
 import { writable } from 'svelte/store';
-import type { User } from '$lib/types';
+import type { User } from '$lib/api/generated/users/types';
 
 // User store
 export const currentUser = writable<User | null>(null);

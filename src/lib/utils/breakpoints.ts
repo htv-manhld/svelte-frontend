@@ -7,4 +7,5 @@ export const BREAKPOINTS = {
 } as const;
 
 export const isDesktop = () => window.innerWidth >= BREAKPOINTS.lg;
-export const isMobile = () => window.innerWidth < BREAKPOINTS.lg;
+export const isMobile = () => window.innerWidth < BREAKPOINTS.md;
+export const isTablet = () => window.innerWidth >= BREAKPOINTS.md && window.innerWidth < BREAKPOINTS.lg;

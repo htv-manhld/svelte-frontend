@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { fade, scale } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
-	import type { User, CreateUserRequest, UpdateUserRequest } from '$lib/types';
+	import type { User, CreateUserRequest, UpdateUserRequest } from '$lib/api/generated/users/types';
 
 	interface Props {
 		isOpen?: boolean;
@@ -14,7 +14,7 @@
 	interface UserFormData {
 		email?: string;
 		name: string;
-		age: number;
+		birthdate?: string;
 	}
 
 	let { isOpen = $bindable(false), mode = 'create', user = null, onsubmit, onclose }: Props = $props();
@@ -22,7 +22,7 @@
 	let formData = $state<UserFormData>({
 		email: '',
 		name: '',
-		age: 18
+		birthdate: ''
 	});
 
 	$effect(() => {
@@ -30,13 +30,13 @@
 			if (mode === 'edit' && user) {
 				formData = {
 					name: user.name,
-					age: user.age
+					birthdate: user.birthdate || ''
 				};
 			} else {
 				formData = {
 					email: '',
 					name: '',
-					age: 18
+					birthdate: ''
 				};
 			}
 		}
@@ -46,11 +46,17 @@
 		event.preventDefault();
 		if (onsubmit) {
 			// Build the correct payload based on mode
-			const payload: CreateUserRequest | UpdateUserRequest = {
-				email: formData.email!,
-				name: formData.name,
-				age: formData.age
-			};
+			const payload: CreateUserRequest | UpdateUserRequest =
+				mode === 'create'
+					? {
+							email: formData.email!,
+							name: formData.name,
+							birthdate: formData.birthdate || null
+						}
+					: {
+							name: formData.name,
+							birthdate: formData.birthdate || null
+						};
 
 			onsubmit(new CustomEvent('submit', { detail: { mode, data: payload } }));
 		}
@@ -112,20 +118,17 @@
 						/>
 					</div>
 
-					<div class="mb-6">
-						<label for="age" class="mb-2 block text-sm font-semibold text-gray-700"> Age </label>
+					<div class="mb-5">
+						<label for="birthdate" class="mb-2 block text-sm font-semibold text-gray-700"> Birthdate (Optional) </label>
 						<input
-							id="age"
-							type="number"
-							bind:value={formData.age}
+							id="birthdate"
+							type="date"
+							bind:value={formData.birthdate}
 							class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
-							placeholder="25"
-							min="1"
-							required
 						/>
 					</div>
 
-					<div class="flex justify-end gap-3">
+					<div class="mt-6 flex justify-end gap-3">
 						<button
 							type="button"
 							onclick={handleClose}

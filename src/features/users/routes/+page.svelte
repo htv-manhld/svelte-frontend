@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
-	import type { User, CreateUserRequest, UpdateUserRequest } from '$lib/types';
+	import type { User, CreateUserRequest, UpdateUserRequest } from '$lib/api/generated/users/types';
 	import { t } from '$lib/i18n';
 	import { userService } from '$features/users/services/userService';
 	import { users, loading, error, pagination } from '$features/users/stores/usersStore';

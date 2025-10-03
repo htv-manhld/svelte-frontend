@@ -1,5 +1,5 @@
 import { writable, derived } from 'svelte/store';
-import type { User } from '$lib/types';
+import type { User } from '$lib/api/generated/users/types';
 
 interface UsersState {
 	users: User[];
