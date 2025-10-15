@@ -1,6 +1,7 @@
 <script lang="ts">
-	import '../app.css';
+	import '../../app.css';
 	import favicon from '$lib/assets/favicon.svg';
+	import NotificationContainer from '$lib/components/feedback/NotificationContainer.svelte';
 
 	let { children } = $props();
 </script>
@@ -15,5 +16,8 @@
 	<meta name="referrer" content="strict-origin-when-cross-origin" />
 </svelte:head>
 
-<!-- Render child layouts/pages -->
+<!-- Auth pages layout: no sidebar, just content -->
 {@render children?.()}
+
+<!-- Notification Container -->
+<NotificationContainer />

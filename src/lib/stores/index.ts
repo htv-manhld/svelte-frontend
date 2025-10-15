@@ -3,6 +3,9 @@
 import { writable } from 'svelte/store';
 import type { User } from '$lib/api/generated/users/types';
 
+// Auth store (exported from features/auth)
+export { authStore } from '$features/auth/stores/authStore.svelte';
+
 // User store
 export const currentUser = writable<User | null>(null);
 

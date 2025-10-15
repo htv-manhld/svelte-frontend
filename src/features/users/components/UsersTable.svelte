@@ -1,96 +1,125 @@
 <script lang="ts">
-	import Table from '$lib/components/tables/Table.svelte';
 	import Button from '$lib/components/buttons/Button.svelte';
+	import SortableTableHeader from '$lib/components/tables/SortableTableHeader.svelte';
 	import type { User } from '$lib/api/generated/users/types';
 	import { formatDate } from '$lib/utils';
 
 	interface Props {
 		users: User[];
+		sortBy?: string;
+		sortOrder?: 'asc' | 'desc';
+		onSort: (field: string) => void;
 		onEdit: (user: User) => void;
 		onDelete: (user: User) => void;
 	}
 
-	let { users, onEdit, onDelete }: Props = $props();
-
-	const headers = ['ID', 'User', 'Email', 'Birthdate', 'Status', 'Created At', 'Actions'];
+	let { users, sortBy, sortOrder, onSort, onEdit, onDelete }: Props = $props();
 </script>
 
-<Table {headers}>
-	{#each users as user (user.id)}
-		<tr class="transition-colors hover:bg-gray-50">
-			<td class="px-3 py-3 text-sm whitespace-nowrap text-gray-600 md:px-6 md:py-4">#{user.id}</td>
-			<td class="px-3 py-3 md:px-6 md:py-4">
-				<div class="flex items-center gap-3">
-					<div
-						class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 font-semibold text-blue-600"
+<div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow">
+	<table class="min-w-full divide-y divide-gray-200">
+		<thead class="bg-gray-50">
+			<tr>
+				<th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-700 uppercase">ID</th>
+				<SortableTableHeader field="name" label="User" currentSortBy={sortBy} currentSortOrder={sortOrder} {onSort} />
+				<SortableTableHeader field="email" label="Email" currentSortBy={sortBy} currentSortOrder={sortOrder} {onSort} />
+				<th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-700 uppercase">Birthdate</th>
+				<SortableTableHeader
+					field="status"
+					label="Status"
+					currentSortBy={sortBy}
+					currentSortOrder={sortOrder}
+					{onSort}
+				/>
+				<SortableTableHeader
+					field="createdAt"
+					label="Created At"
+					currentSortBy={sortBy}
+					currentSortOrder={sortOrder}
+					{onSort}
+				/>
+				<th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-700 uppercase">Actions</th>
+			</tr>
+		</thead>
+		<tbody class="divide-y divide-gray-200 bg-white">
+			{#each users as user (user.id)}
+				<tr class="transition-colors hover:bg-gray-50">
+					<td class="px-3 py-3 text-sm whitespace-nowrap text-gray-600 md:px-6 md:py-4">#{user.id}</td>
+					<td class="px-3 py-3 md:px-6 md:py-4">
+						<div class="flex items-center gap-3">
+							<div
+								class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 font-semibold text-blue-600"
+							>
+								{user.name.charAt(0).toUpperCase()}
+							</div>
+							<span class="font-medium whitespace-nowrap text-gray-800">{user.name}</span>
+						</div>
+					</td>
+					<td class="px-3 py-3 text-sm whitespace-nowrap text-gray-600 md:px-6 md:py-4">{user.email}</td>
+					<td class="px-3 py-3 text-sm whitespace-nowrap text-gray-600 md:px-6 md:py-4">
+						{#if user.birthdate}
+							{formatDate(user.birthdate)}
+						{:else}
+							<span class="text-gray-400">N/A</span>
+						{/if}
+					</td>
+					<td class="px-3 py-3 text-sm whitespace-nowrap md:px-6 md:py-4">
+						{#if user.status === 1}
+							<span
+								class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800"
+							>
+								Active
+							</span>
+						{:else}
+							<span
+								class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800"
+							>
+								Inactive
+							</span>
+						{/if}
+					</td>
+					<td class="px-3 py-3 text-sm whitespace-nowrap text-gray-600 md:px-6 md:py-4">{formatDate(user.createdAt)}</td
 					>
-						{user.name.charAt(0).toUpperCase()}
-					</div>
-					<span class="font-medium whitespace-nowrap text-gray-800">{user.name}</span>
-				</div>
-			</td>
-			<td class="px-3 py-3 text-sm whitespace-nowrap text-gray-600 md:px-6 md:py-4">{user.email}</td>
-			<td class="px-3 py-3 text-sm whitespace-nowrap text-gray-600 md:px-6 md:py-4">
-				{#if user.birthdate}
-					{formatDate(user.birthdate)}
-				{:else}
-					<span class="text-gray-400">N/A</span>
-				{/if}
-			</td>
-			<td class="px-3 py-3 text-sm whitespace-nowrap md:px-6 md:py-4">
-				{#if user.status === 1}
-					<span
-						class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800"
-					>
-						Active
-					</span>
-				{:else}
-					<span
-						class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800"
-					>
-						Inactive
-					</span>
-				{/if}
-			</td>
-			<td class="px-3 py-3 text-sm whitespace-nowrap text-gray-600 md:px-6 md:py-4">{formatDate(user.createdAt)}</td>
-			<td class="px-3 py-3 md:px-6 md:py-4">
-				<div class="flex gap-2">
-					<Button variant="secondary" size="sm" onclick={() => onEdit(user)} class="md:px-4">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke-width="1.5"
-							stroke="currentColor"
-							class="h-4 w-4 md:mr-1"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
-							/>
-						</svg>
-						<span class="hidden md:inline">Edit</span>
-					</Button>
-					<Button variant="danger" size="sm" onclick={() => onDelete(user)} class="md:px-4">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke-width="1.5"
-							stroke="currentColor"
-							class="h-4 w-4 md:mr-1"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
-							/>
-						</svg>
-						<span class="hidden md:inline">Delete</span>
-					</Button>
-				</div>
-			</td>
-		</tr>
-	{/each}
-</Table>
+					<td class="px-3 py-3 md:px-6 md:py-4">
+						<div class="flex gap-2">
+							<Button variant="secondary" size="sm" onclick={() => onEdit(user)} class="md:px-4">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke-width="1.5"
+									stroke="currentColor"
+									class="h-4 w-4 md:mr-1"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+									/>
+								</svg>
+								<span class="hidden md:inline">Edit</span>
+							</Button>
+							<Button variant="danger" size="sm" onclick={() => onDelete(user)} class="md:px-4">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke-width="1.5"
+									stroke="currentColor"
+									class="h-4 w-4 md:mr-1"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+									/>
+								</svg>
+								<span class="hidden md:inline">Delete</span>
+							</Button>
+						</div>
+					</td>
+				</tr>
+			{/each}
+		</tbody>
+	</table>
+</div>

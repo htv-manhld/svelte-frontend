@@ -1,9 +1,12 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { afterNavigate } from '$app/navigation';
+	import { goto, afterNavigate } from '$app/navigation';
 	import { browser } from '$app/environment';
 	import { isMobile } from '$lib/utils/breakpoints';
+	import { authStore } from '$features/auth/stores/authStore.svelte';
 	import { t } from '$lib/i18n';
+	import { slide } from 'svelte/transition';
+	import { quintOut } from 'svelte/easing';
 
 	interface SidebarProps {
 		isOpen?: boolean;
@@ -12,11 +15,22 @@
 
 	let { isOpen = true, onToggle }: SidebarProps = $props();
 
+	let dropdownOpen = $state(false);
+
 	afterNavigate(() => {
 		if (browser && isMobile() && isOpen && onToggle) {
 			onToggle();
 		}
 	});
+
+	function toggleDropdown() {
+		dropdownOpen = !dropdownOpen;
+	}
+
+	async function handleLogout() {
+		await authStore.logout();
+		goto('/login');
+	}
 
 	const menuItems = [
 		{
@@ -56,11 +70,11 @@
 	<nav class="p-4">
 		<ul class="space-y-2">
 			{#each menuItems as item (item.href)}
+				{@const isActive = item.href === '/' ? $page.url.pathname === '/' : $page.url.pathname.startsWith(item.href)}
 				<li>
 					<a
 						href={item.href}
-						class="flex items-center gap-3 rounded-lg px-4 py-3 transition-colors hover:bg-gray-800 {$page.url
-							.pathname === item.href
+						class="flex items-center gap-3 rounded-lg px-4 py-3 transition-colors hover:bg-gray-800 {isActive
 							? 'bg-gray-800 font-semibold'
 							: ''}"
 					>
@@ -76,27 +90,111 @@
 	</nav>
 
 	<div class="absolute bottom-0 w-full border-t border-gray-700 p-4">
-		<div class="flex items-center gap-3 px-4 py-2">
-			<div class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-700">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke-width="1.5"
-					stroke="currentColor"
-					class="h-6 w-6"
+		{#if authStore.isAuthenticated && authStore.user}
+			<div class="relative">
+				<!-- User Profile Button -->
+				<button
+					onclick={toggleDropdown}
+					class="flex w-full items-center gap-3 rounded-lg px-4 py-3 transition-colors hover:bg-gray-800"
 				>
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
-					/>
-				</svg>
+					<div class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-700">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.5"
+							stroke="currentColor"
+							class="h-6 w-6"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+							/>
+						</svg>
+					</div>
+					<div class="flex-1 overflow-hidden text-left text-sm">
+						<div class="truncate font-semibold">{authStore.user.name}</div>
+						<div class="truncate text-xs text-gray-400">{authStore.user.email}</div>
+					</div>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="1.5"
+						stroke="currentColor"
+						class="h-5 w-5 transition-transform {dropdownOpen ? 'rotate-180' : ''}"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+					</svg>
+				</button>
+
+				<!-- Dropdown Menu -->
+				{#if dropdownOpen}
+					<div class="mt-2 space-y-1 overflow-hidden" transition:slide={{ duration: 300, easing: quintOut }}>
+						<a
+							href="/profile"
+							class="flex items-center gap-3 rounded-lg px-4 py-2 text-sm transition-colors hover:bg-gray-800"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke-width="1.5"
+								stroke="currentColor"
+								class="h-5 w-5"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z"
+								/>
+							</svg>
+							My Profile
+						</a>
+						<a
+							href="/change-password"
+							class="flex items-center gap-3 rounded-lg px-4 py-2 text-sm transition-colors hover:bg-gray-800"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke-width="1.5"
+								stroke="currentColor"
+								class="h-5 w-5"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"
+								/>
+							</svg>
+							Change Password
+						</a>
+						<button
+							onclick={handleLogout}
+							class="flex w-full items-center gap-3 rounded-lg px-4 py-2 text-sm text-red-400 transition-colors hover:bg-gray-800"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke-width="1.5"
+								stroke="currentColor"
+								class="h-5 w-5"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
+								/>
+							</svg>
+							Logout
+						</button>
+					</div>
+				{/if}
 			</div>
-			<div class="text-sm">
-				<div class="font-semibold">{t('layout.userInfo.name')}</div>
-				<div class="text-gray-400">{t('layout.userInfo.email')}</div>
-			</div>
-		</div>
+		{/if}
 	</div>
 </aside>

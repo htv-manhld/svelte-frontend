@@ -1,21 +1,25 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import type { HTMLButtonAttributes } from 'svelte/elements';
 
-	interface Props {
+	interface Props extends Omit<HTMLButtonAttributes, 'type' | 'class'> {
+		type?: 'button' | 'submit' | 'reset';
 		variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
 		size?: 'sm' | 'md' | 'lg';
 		disabled?: boolean;
 		loading?: boolean;
-		onclick?: () => void;
+		fullWidth?: boolean;
 		class?: string;
 		children?: Snippet;
 	}
 
 	let {
+		type = 'button',
 		variant = 'primary',
 		size = 'md',
 		disabled = false,
 		loading = false,
+		fullWidth = false,
 		onclick,
 		class: className = '',
 		children,
@@ -40,7 +44,9 @@
 </script>
 
 <button
+	{type}
 	class="{baseClasses} {variantClasses[variant]} {sizeClasses[size]} {className}"
+	class:w-full={fullWidth}
 	{disabled}
 	{onclick}
 	{...restProps}

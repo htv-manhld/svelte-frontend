@@ -2,6 +2,8 @@
 	import { fade, scale } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import type { User, CreateUserRequest, UpdateUserRequest } from '$lib/api/generated/users/types';
+	import { createUserSchema, updateUserSchema } from '$features/users/validation/schemas';
+	import { validate } from '$lib/utils/validation';
 
 	interface Props {
 		isOpen?: boolean;
@@ -25,8 +27,13 @@
 		birthdate: ''
 	});
 
+	let fieldErrors = $state<Record<string, string>>({});
+
 	$effect(() => {
 		if (isOpen) {
+			// Reset errors when modal opens
+			fieldErrors = {};
+
 			if (mode === 'edit' && user) {
 				formData = {
 					name: user.name,
@@ -44,21 +51,38 @@
 
 	function handleSubmit(event: Event) {
 		event.preventDefault();
-		if (onsubmit) {
-			// Build the correct payload based on mode
-			const payload: CreateUserRequest | UpdateUserRequest =
-				mode === 'create'
-					? {
-							email: formData.email!,
-							name: formData.name,
-							birthdate: formData.birthdate || null
-						}
-					: {
-							name: formData.name,
-							birthdate: formData.birthdate || null
-						};
+		fieldErrors = {};
 
-			onsubmit(new CustomEvent('submit', { detail: { mode, data: payload } }));
+		if (onsubmit) {
+			// Validate based on mode (trim/transform handled in Valibot schema)
+			if (mode === 'create') {
+				const validationResult = validate(createUserSchema, formData);
+				if (!validationResult.success) {
+					fieldErrors = validationResult.errors;
+					return;
+				}
+
+				const payload: CreateUserRequest = {
+					email: validationResult.data.email,
+					name: validationResult.data.name,
+					birthdate: validationResult.data.birthdate || null
+				};
+
+				onsubmit(new CustomEvent('submit', { detail: { mode, data: payload } }));
+			} else {
+				const validationResult = validate(updateUserSchema, formData);
+				if (!validationResult.success) {
+					fieldErrors = validationResult.errors;
+					return;
+				}
+
+				const payload: UpdateUserRequest = {
+					name: validationResult.data.name,
+					birthdate: validationResult.data.birthdate || null
+				};
+
+				onsubmit(new CustomEvent('submit', { detail: { mode, data: payload } }));
+			}
 		}
 	}
 
@@ -99,10 +123,18 @@
 								id="email"
 								type="email"
 								bind:value={formData.email}
-								class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+								class="w-full rounded-lg border px-4 py-3 transition-colors focus:ring-2 focus:outline-none"
+								class:border-red-300={fieldErrors.email}
+								class:border-gray-300={!fieldErrors.email}
+								class:focus:border-blue-500={!fieldErrors.email}
+								class:focus:ring-blue-200={!fieldErrors.email}
+								class:focus:border-red-500={fieldErrors.email}
+								class:focus:ring-red-200={fieldErrors.email}
 								placeholder="user@example.com"
-								required
 							/>
+							{#if fieldErrors.email}
+								<p class="mt-1 text-sm text-red-600">{fieldErrors.email}</p>
+							{/if}
 						</div>
 					{/if}
 
@@ -112,10 +144,18 @@
 							id="name"
 							type="text"
 							bind:value={formData.name}
-							class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+							class="w-full rounded-lg border px-4 py-3 transition-colors focus:ring-2 focus:outline-none"
+							class:border-red-300={fieldErrors.name}
+							class:border-gray-300={!fieldErrors.name}
+							class:focus:border-blue-500={!fieldErrors.name}
+							class:focus:ring-blue-200={!fieldErrors.name}
+							class:focus:border-red-500={fieldErrors.name}
+							class:focus:ring-red-200={fieldErrors.name}
 							placeholder="John Doe"
-							required
 						/>
+						{#if fieldErrors.name}
+							<p class="mt-1 text-sm text-red-600">{fieldErrors.name}</p>
+						{/if}
 					</div>
 
 					<div class="mb-5">
@@ -124,8 +164,17 @@
 							id="birthdate"
 							type="date"
 							bind:value={formData.birthdate}
-							class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+							class="w-full rounded-lg border px-4 py-3 transition-colors focus:ring-2 focus:outline-none"
+							class:border-red-300={fieldErrors.birthdate}
+							class:border-gray-300={!fieldErrors.birthdate}
+							class:focus:border-blue-500={!fieldErrors.birthdate}
+							class:focus:ring-blue-200={!fieldErrors.birthdate}
+							class:focus:border-red-500={fieldErrors.birthdate}
+							class:focus:ring-red-200={fieldErrors.birthdate}
 						/>
+						{#if fieldErrors.birthdate}
+							<p class="mt-1 text-sm text-red-600">{fieldErrors.birthdate}</p>
+						{/if}
 					</div>
 
 					<div class="mt-6 flex justify-end gap-3">
